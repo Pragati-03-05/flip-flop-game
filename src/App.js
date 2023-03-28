@@ -1,6 +1,6 @@
 import './style.css';
-import { useEffect, useState } from 'react';
-import ShuffleCards from './ShuffleCard.js';
+import React, { useEffect, useState } from 'react';
+import ShuffleCards from './ShuffleCard';
 import {
   Dialog,
   DialogContent,
@@ -93,6 +93,7 @@ export default function App() {
                 clearCards={clearCards}
                 openCards={openCards}
                 disable={disable}
+                time={time}
               />
             )}
           </div>

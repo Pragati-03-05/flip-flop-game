@@ -1,21 +1,21 @@
 import React from 'react';
 import './avatar.scss';
-import classnames from 'classnames';
 import dice from '../Images/dice.png';
 
 function Avatar(props) {
   const { card, index, isFlipped, onClick, inActive, disable } = props;
   return (
     <div
-      className={`card ${inActive}`}
+      className={`${inActive} ${isFlipped}`}
       onClick={() => !isFlipped && disable && onClick(index)}
     >
-      <div className={classnames('card-face')}>
-        {isFlipped ? (
-          <img src={card.avatar_url} alt={card.login} className="img" />
-        ) : (
+      <div className="flip-box-inner">
+        <div className="flip-box-front">
           <img src={dice} alt={dice} />
-        )}
+        </div>
+        <div className="flip-box-back">
+          <img src={card.avatar_url} alt={card.login} className="img" />
+        </div>
       </div>
     </div>
   );

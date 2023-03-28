@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import Avatar from './Avatar';
 
 const SetAvatar = (props) => {
-  const { data, openCards, clearCards, disable } = props;
+  const { data, openCards, clearCards, disable, time } = props;
   const checkIsFlipped = (index) => {
-    return openCards.includes(index);
+    return time > 0 && openCards.includes(index);
   };
   const handleCardClick = useCallback(
     (index) => {
@@ -23,7 +23,7 @@ const SetAvatar = (props) => {
         key={index}
         index={index}
         disable={disable}
-        isFlipped={checkIsFlipped(index)}
+        isFlipped={checkIsFlipped(index) && 'isFlipped'}
         onClick={() => handleCardClick(index)}
         inActive={clearCards.includes(index) && 'inActive'}
       />
