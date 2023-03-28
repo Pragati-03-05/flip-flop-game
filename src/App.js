@@ -1,6 +1,6 @@
 import './style.css';
 import { useEffect, useState } from 'react';
-import ShuffleCards from './ShuffleCard';
+import ShuffleCards from './ShuffleCard.js';
 import {
   Dialog,
   DialogContent,
