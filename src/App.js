@@ -1,6 +1,5 @@
-import './style.scss';
+import './style.css';
 import { useEffect, useState } from 'react';
-import Avatar from './Avatar';
 import ShuffleCards from './ShuffleCard';
 import {
   Dialog,
@@ -10,48 +9,31 @@ import {
   DialogActions,
   Button,
 } from '@material-ui/core';
+import SetAvatar from './AllAvatar/SetAvatar';
 
 export default function App() {
   const [data, setData] = useState([]);
+  const [disable, setDisable] = useState(false);
   const [openCards, setOpenCards] = useState([]);
+  const [clearCards, setClearCards] = useState([]);
   const [score, setScore] = useState(0);
   const [time, setTime] = useState(0);
   const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     var getCard = async () => {
-      let test1 = await fetch(
+      let firstRes = await fetch(
         'https://api.github.com/repos/facebook/react/contributors'
       );
-      let test2 = await test1.json();
-      let val = test2.slice(0, 6);
-      let finalVal = ShuffleCards(val.concat(val));
-      setData(finalVal);
+      let secRes = await firstRes.json();
+      let res = secRes.slice(0, 6);
+      let finalRes = ShuffleCards(res.concat(res));
+      setData(finalRes);
     };
     getCard();
   }, []);
-  const evaluate = () => {
-    const [first, second] = openCards;
-    if (data[first].login === data[second].login) {
-      setOpenCards([]);
-      data[first].clearCard = true;
-      data[second].clearCard = true;
-      setData([...data]);
-      setScore((prev) => prev + 100);
-      return;
-    } else {
-      setOpenCards([]);
-    }
-  };
   useEffect(() => {
     checkCompletion();
-  }, [data]);
-  const checkCompletion = () => {
-    const filterVal = data.filter((x) => x.clearCard);
-    if (data.length === filterVal.length) {
-      console.log('HHHHHHHHHHHHH', showModal);
-      setShowModal(true);
-    }
-  };
+  }, [clearCards]);
   useEffect(() => {
     let timeout = null;
     if (openCards.length === 2) {
@@ -59,75 +41,100 @@ export default function App() {
     }
     return () => clearTimeout(timeout);
   }, [openCards]);
-  const handleCardClick = (index) => {
-    if (openCards.length === 1) {
-      setOpenCards((prev) => [...prev, index]);
+  useEffect(() => {
+    if (time !== 0) {
+      if (time < 60) {
+        setTimeout(() => {
+          setTime((prev) => prev + 1);
+        }, 1000);
+      } else {
+        setShowModal(true);
+      }
+    }
+  }, [time]);
+  const evaluate = () => {
+    const [first, second] = openCards;
+    if (data[first].login === data[second].login) {
+      setOpenCards([]);
+      setClearCards((prev) => [...prev, first, second]);
+      setScore((prev) => prev + 100);
+      return;
     } else {
-      setOpenCards([index]);
+      setOpenCards([]);
+    }
+  };
+  const checkCompletion = () => {
+    if (clearCards.length === 12) {
+      setShowModal(true);
     }
   };
   const handleRestart = () => {
-    setData(ShuffleCards(data.concat(data)));
-    setOpenCards([]);
-    setShowModal(false);
-    setScore(0);
     setTime(0);
+    setOpenCards([]);
+    setClearCards([]);
+    setShowModal(false);
+    setData(data);
+    setScore(0);
   };
-  const checkIsFlipped = (index) => {
-    return openCards.includes(index);
+  const startTimer = (e) => {
+    e.preventDefault();
+    setTime(time + 1);
+    setDisable(true);
   };
-  const startTimer = () => {
-    setTimeout(() => {
-      setTime((prev) => prev + 1);
-    }, 1000);
-  };
-  useEffect(() => {
-    if (time < 60) {
-      setTimeout(() => {
-        setTime((prev) => prev + 1);
-      }, 1000);
-    }
-  }, [time]);
   return (
     <>
-      <div className="parent">
-        <div className="container">
-          {data &&
-            data.map((x, index) => {
-              return (
-                <Avatar
-                  card={x}
-                  index={index}
-                  isFlipped={checkIsFlipped(index)}
-                  onClick={handleCardClick}
-                  inActive={x.clearCard && 'inActive'}
-                />
-              );
-            })}
+      <div className="main">
+        <div className="parent">
+          <div className="container">
+            {data && (
+              <SetAvatar
+                data={data}
+                setOpenCards={setOpenCards}
+                clearCards={clearCards}
+                openCards={openCards}
+                disable={disable}
+              />
+            )}
+          </div>
+          <div className="outer">
+            <div>
+              <div>
+                Total time<div className="score">60 sec</div>
+              </div>
+              <div>
+                Time elapsed <div className="score">{time} sec</div>
+              </div>
+            </div>
+            <div>
+              Total score <div className="score">{score}</div>
+            </div>
+          </div>
         </div>
-        <div className="timer">
-          <div className="outer">
-            Total time
-            <div>60 sec</div>
-            Time elapsed
-            <div>{time} sec</div>
-          </div>
-          <div className="outer">
-            Score
-            <div>{score}</div>
-          </div>
+        <div className="start">
+          <Button
+            type="button"
+            class="btn btn-primary"
+            onClick={(e) => startTimer(e)}
+          >
+            Start
+          </Button>
         </div>
       </div>
-      <button onClick={() => startTimer()}>Start</button>
-      <Dialog open={showModal}>
-        <DialogTitle>Hurray!!! You completed the challenge</DialogTitle>
+      <Dialog open={showModal} className="dialog">
+        {score > 0 ? (
+          <DialogTitle>Hurray!!! You completed the challenge</DialogTitle>
+        ) : (
+          <DialogTitle>Time is over!!!</DialogTitle>
+        )}
         <DialogContent>
-          <DialogContentText>
-            You completed the game. Your best score is {score}
-          </DialogContentText>
+          <DialogContentText>Your score is {score}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleRestart()} color="primary">
+          <Button
+            onClick={() => handleRestart()}
+            color="primary"
+            variant="outlined"
+          >
             Restart
           </Button>
         </DialogActions>
