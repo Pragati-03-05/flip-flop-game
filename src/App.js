@@ -1,5 +1,5 @@
-import './style.css';
-import React, { useEffect, useState } from 'react';
+import './styles.css';
+import { useEffect, useState } from 'react';
 import ShuffleCards from './ShuffleCard';
 import {
   Dialog,
@@ -42,6 +42,7 @@ export default function App() {
     return () => clearTimeout(timeout);
   }, [openCards]);
   useEffect(() => {
+    console.log('AAAAAAAAAAAAAA', time);
     if (time !== 0) {
       if (time < 60) {
         setTimeout(() => {
@@ -65,6 +66,7 @@ export default function App() {
   };
   const checkCompletion = () => {
     if (clearCards.length === 12) {
+      setTime(0);
       setShowModal(true);
     }
   };
@@ -73,7 +75,7 @@ export default function App() {
     setOpenCards([]);
     setClearCards([]);
     setShowModal(false);
-    setData(data);
+    setData(ShuffleCards(data.concat(data)));
     setScore(0);
   };
   const startTimer = (e) => {
